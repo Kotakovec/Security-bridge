@@ -57,6 +57,17 @@
             100% { top: 100%; }
         }
 
+        /* ANIMACE ZATŘESENÍ */
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            20%, 60% { transform: translateX(-10px); }
+            40%, 80% { transform: translateX(10px); }
+        }
+
+        .apply-shake {
+            animation: shake 0.4s ease-in-out;
+        }
+
         h2 { 
             color: #00ff00; 
             margin: 0 0 20px 0;
@@ -109,14 +120,12 @@
             text-transform: uppercase;
             font-family: 'Courier New', monospace;
             margin-top: 10px;
-            transition: 0.3s ease; /* Plynulejší přechod ztmavení */
+            transition: 0.3s ease;
         }
 
-        /* TADY JE TA OPRAVA: Tlačítko jen ztmavne */
         button:disabled {
-            filter: brightness(0.4); /* Ztmavne o 60% */
+            filter: brightness(0.4);
             cursor: not-allowed;
-            box-shadow: none;
         }
 
         button:hover:not(:disabled) {
@@ -179,7 +188,7 @@
                 let randomChar = chars.charAt(Math.floor(Math.random() * chars.length));
                 element.innerText = solved + randomChar;
                 if (Math.random() > 0.7) {
-                    solved += finalDoc[i];
+                    solved += finalDoc[i] || "";
                     i++;
                 }
                 if (i >= finalDoc.length) {
@@ -195,9 +204,22 @@
             const user = document.getElementById('u').value;
             const pass = document.getElementById('p').value;
             const btn = document.getElementById('login-btn');
+            const card = document.querySelector('.login-card');
 
-            if(!user || !pass) return;
+            // KONTROLA PRÁZDNÝCH POLÍ
+            if(!user || !pass) {
+                // Přidáme třídu pro zatřesení
+                card.classList.add('apply-shake');
+                
+                // Po skončení animace (0.4s) třídu odebereme, aby se dala spustit znovu
+                setTimeout(() => {
+                    card.classList.remove('apply-shake');
+                }, 400);
+                
+                return; // Tady končíme, barva ani text se nemění
+            }
 
+            // POKUD JE VYPLNĚNO - STANDARDNÍ LOGIKA
             const originalBtnText = btn.innerText;
             btn.innerText = "INITIALIZING . . .";
             btn.disabled = true;
