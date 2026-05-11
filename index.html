@@ -39,33 +39,19 @@
             border: 1px solid #00ff00;
             text-align: center;
             width: 290px;
-            box-shadow: 0 0 25px rgba(0, 255, 0, 0.25);
+            box-shadow: 0 0 20px rgba(0, 255, 0, 0.2);
             position: relative;
-        }
-
-        .login-card::after {
-            content: "";
-            position: absolute;
-            top: 0; left: 0; width: 100%; height: 2px;
-            background: rgba(0, 255, 0, 0.1);
-            animation: scan 4s linear infinite;
-            pointer-events: none;
-        }
-
-        @keyframes scan {
-            0% { top: 0; }
-            100% { top: 100%; }
         }
 
         /* ANIMACE ZATŘESENÍ */
         @keyframes shake {
             0%, 100% { transform: translateX(0); }
-            20%, 60% { transform: translateX(-10px); }
-            40%, 80% { transform: translateX(10px); }
+            20%, 60% { transform: translateX(-8px); }
+            40%, 80% { transform: translateX(8px); }
         }
 
         .apply-shake {
-            animation: shake 0.4s ease-in-out;
+            animation: shake 0.3s ease-in-out;
         }
 
         h2 { 
@@ -74,7 +60,6 @@
             font-size: 16px;
             letter-spacing: 2px;
             text-transform: uppercase;
-            text-shadow: 0 0 5px #00ff00;
         }
 
         .input-group {
@@ -88,7 +73,6 @@
             display: block;
             margin-bottom: 4px;
             text-transform: uppercase;
-            letter-spacing: 1px;
         }
 
         input {
@@ -103,15 +87,10 @@
             font-family: 'Courier New', monospace;
         }
 
-        input:focus {
-            border-color: #00ff00;
-            box-shadow: 0 0 8px rgba(0, 255, 0, 0.4);
-        }
-
         button {
             width: 100%;
             padding: 12px;
-            background: #00ff00;
+            background: #00ff00; /* Základní zelená */
             border: none;
             color: black;
             font-weight: bold;
@@ -120,17 +99,20 @@
             text-transform: uppercase;
             font-family: 'Courier New', monospace;
             margin-top: 10px;
-            transition: 0.3s ease;
+            transition: background 0.2s, filter 0.3s;
+            outline: none;
         }
 
-        button:disabled {
-            filter: brightness(0.4);
-            cursor: not-allowed;
-        }
-
+        /* OPRAVA: Při najetí nezesvětlá do bílé, ale jen jemně svítí zeleně */
         button:hover:not(:disabled) {
-            background: #ffffff;
-            box-shadow: 0 0 15px #ffffff;
+            background: #33ff33; 
+            box-shadow: 0 0 10px rgba(0, 255, 0, 0.4);
+        }
+
+        /* Tlačítko ztmavne jen když se odesílá (disabled) */
+        button:disabled {
+            filter: brightness(0.3);
+            cursor: not-allowed;
         }
 
         #system-msg {
@@ -138,8 +120,7 @@
             font-size: 8px;
             margin-top: 18px;
             letter-spacing: 1px;
-            min-height: 10px;
-            opacity: 0.7;
+            opacity: 0.6;
         }
     </style>
 </head>
@@ -148,19 +129,15 @@
     <div id="viewport">
         <div id="app" class="login-card">
             <h2>KOTAK_ENGINE</h2>
-
             <div class="input-group">
                 <label>User_Identity</label>
-                <input type="text" id="u" placeholder="> username" spellcheck="false" autocomplete="off">
+                <input type="text" id="u" placeholder="> username" autocomplete="off" spellcheck="false">
             </div>
-
             <div class="input-group">
                 <label>Access_Key</label>
                 <input type="password" id="p" placeholder="> password">
             </div>
-
             <button id="login-btn" onclick="login()">Initialize_Access</button>
-
             <div id="system-msg"></div>
         </div>
     </div>
@@ -174,27 +151,17 @@
         const db = firebase.database();
 
         let decodeInterval;
-
-        const decodeEffect = (customText) => {
+        const decodeEffect = (text) => {
             if (decodeInterval) clearInterval(decodeInterval);
-            const element = document.getElementById('system-msg');
-            const finalDoc = customText || "Secured by KotakEngine File Encryptor";
+            const el = document.getElementById('system-msg');
+            const target = text || "Secured by KotakEngine File Encryptor";
             const chars = "§$ABCDEF0123456789abcdeklmnorxyz!?@#%&*";
             let solved = "";
             let i = 0;
-            element.innerText = "";
-
             decodeInterval = setInterval(() => {
-                let randomChar = chars.charAt(Math.floor(Math.random() * chars.length));
-                element.innerText = solved + randomChar;
-                if (Math.random() > 0.7) {
-                    solved += finalDoc[i] || "";
-                    i++;
-                }
-                if (i >= finalDoc.length) {
-                    element.innerText = finalDoc;
-                    clearInterval(decodeInterval);
-                }
+                el.innerText = solved + chars.charAt(Math.floor(Math.random() * chars.length));
+                if (Math.random() > 0.7) { solved += target[i] || ""; i++; }
+                if (i >= target.length) { el.innerText = target; clearInterval(decodeInterval); }
             }, 30);
         };
 
@@ -206,24 +173,16 @@
             const btn = document.getElementById('login-btn');
             const card = document.querySelector('.login-card');
 
-            // KONTROLA PRÁZDNÝCH POLÍ
+            // Pokud není vyplněno - jen se zatřese, nezmění barvu, neztmavne
             if(!user || !pass) {
-                // Přidáme třídu pro zatřesení
                 card.classList.add('apply-shake');
-                
-                // Po skončení animace (0.4s) třídu odebereme, aby se dala spustit znovu
-                setTimeout(() => {
-                    card.classList.remove('apply-shake');
-                }, 400);
-                
-                return; // Tady končíme, barva ani text se nemění
+                setTimeout(() => card.classList.remove('apply-shake'), 300);
+                return;
             }
 
-            // POKUD JE VYPLNĚNO - STANDARDNÍ LOGIKA
-            const originalBtnText = btn.innerText;
-            btn.innerText = "INITIALIZING . . .";
+            // Pokud je vyplněno - ztmavne a začne se přihlašovat
             btn.disabled = true;
-
+            btn.innerText = "INITIALIZING . . .";
             decodeEffect("ESTABLISHING ENCRYPTED LINK . . .");
 
             db.ref('users/' + user).once('value').then(s => {
@@ -231,14 +190,13 @@
                     document.getElementById('viewport').innerHTML = s.val().html;
                 } else {
                     alert("ACCESS DENIED");
-                    btn.innerText = originalBtnText;
                     btn.disabled = false;
-                    decodeEffect("Secured by KotakEngine File Encryptor");
+                    btn.innerText = "Initialize_Access";
+                    decodeEffect();
                 }
-            }).catch(err => {
-                btn.innerText = originalBtnText;
+            }).catch(() => {
                 btn.disabled = false;
-                decodeEffect("CONNECTION ERROR");
+                btn.innerText = "Initialize_Access";
             });
         }
     </script>
