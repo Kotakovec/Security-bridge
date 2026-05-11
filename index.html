@@ -3,201 +3,202 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0">
-    <title>KotakEngine Terminal v5.7</title>
+    <title>KotakEngine Terminal v4.2</title>
+
     <script src="https://www.gstatic.com/firebasejs/9.1.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.1.0/firebase-database-compat.js"></script>
+
     <style>
         * { box-sizing: border-box; }
-        html, body { margin: 0; padding: 0; width: 100%; height: 100%; background: #000; overflow: hidden; font-family: 'Courier New', monospace; color: #00ff00; }
-        #viewport { display: flex; justify-content: center; align-items: center; width: 100vw; height: 100dvh; position: fixed; }
 
-        /* LOGIN */
-        .login-card { background: #030303; padding: 25px; border: 1px solid #00ff00; text-align: center; width: 290px; box-shadow: 0 0 20px rgba(0, 255, 0, 0.2); }
-        h2 { font-size: 16px; letter-spacing: 2px; text-transform: uppercase; margin-bottom: 20px; }
-        .input-group { margin-bottom: 12px; text-align: left; }
-        .input-group label { color: #008800; font-size: 9px; display: block; margin-bottom: 4px; text-transform: uppercase; }
-        input, textarea { width: 100%; padding: 10px; background: #000; border: 1px solid #004400; color: #00ff00; font-size: 14px; outline: none; font-family: 'Courier New', monospace; }
-        button { width: 100%; padding: 12px; background: #00ff00; border: none; color: black; font-weight: bold; cursor: pointer; text-transform: uppercase; margin-top: 10px; }
-        
-        /* ADMIN PANEL */
-        .admin-panel { width: 98%; max-width: 900px; height: 95%; background: #050505; border: 1px solid #00ff00; padding: 10px; display: flex; flex-direction: column; }
-        .toolbar { display: flex; gap: 8px; margin-bottom: 15px; }
-        .user-list-header { display: grid; grid-template-columns: 1.2fr 1.2fr 1fr 0.6fr; gap: 5px; padding: 10px; color: #008800; font-size: 9px; border-bottom: 1px solid #004400; text-transform: uppercase; }
-        .user-row { display: grid; grid-template-columns: 1.2fr 1.2fr 1fr 0.6fr; gap: 5px; padding: 12px 10px; border-bottom: 1px solid #002200; align-items: center; }
-        .btn-small { padding: 6px; font-size: 9px; cursor: pointer; border: 1px solid #00ff00; background: transparent; color: #00ff00; text-transform: uppercase; }
-        .btn-del { border-color: #ff0000; color: #ff0000; }
-
-        /* EDITOR POPUP - VS CODE STYLE */
-        #editor-popup { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #1e1e1e; z-index: 100; flex-direction: column; }
-        .editor-header { background: #2d2d2d; padding: 10px 15px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #000; }
-        
-        /* KLÍČOVÁ OPRAVA PRO FORMÁTOVÁNÍ KÓDU */
-        #html-editor { 
-            flex-grow: 1; 
-            background: #1e1e1e; 
-            color: #d4d4d4; 
-            border: none; 
-            padding: 20px; 
-            font-size: 13px; 
-            resize: none; 
-            line-height: 1.5; 
-            white-space: pre;      /* Zachová mezery a nové řádky */
-            overflow: auto;        /* Povolí scroll do všech stran */
-            word-wrap: normal;     /* Vypne lámání slov */
-            tab-size: 4;           /* Nastaví velikost tabulátoru */
-            -webkit-overflow-scrolling: touch;
+        html, body {
+            margin: 0;
+            padding: 0;
+            width: 100%;
+            height: 100%;
+            background: #000;
+            overflow: hidden;
+            font-family: 'Courier New', Courier, monospace;
         }
-        
-        #user-modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.9); z-index: 200; justify-content: center; align-items: center; }
+
+        #viewport {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            width: 100vw;
+            height: 100dvh;
+            position: fixed;
+            top: 0;
+            left: 0;
+        }
+
+        .login-card {
+            background: #030303;
+            padding: 25px;
+            border-radius: 2px;
+            border: 1px solid #00ff00;
+            text-align: center;
+            width: 290px;
+            box-shadow: 0 0 20px rgba(0, 255, 0, 0.2);
+            position: relative;
+        }
+
+        /* ANIMACE ZATŘESENÍ */
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            20%, 60% { transform: translateX(-8px); }
+            40%, 80% { transform: translateX(8px); }
+        }
+
+        .apply-shake {
+            animation: shake 0.3s ease-in-out;
+        }
+
+        h2 { 
+            color: #00ff00; 
+            margin: 0 0 20px 0;
+            font-size: 16px;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+        }
+
+        .input-group {
+            margin-bottom: 12px;
+            text-align: left;
+        }
+
+        .input-group label {
+            color: #008800;
+            font-size: 9px;
+            display: block;
+            margin-bottom: 4px;
+            text-transform: uppercase;
+        }
+
+        input {
+            width: 100%;
+            padding: 10px;
+            background: #000;
+            border: 1px solid #004400;
+            color: #00ff00;
+            border-radius: 0;
+            font-size: 14px;
+            outline: none;
+            font-family: 'Courier New', monospace;
+        }
+
+        button {
+            width: 100%;
+            padding: 12px;
+            background: #00ff00; /* Základní zelená */
+            border: none;
+            color: black;
+            font-weight: bold;
+            font-size: 13px;
+            cursor: pointer;
+            text-transform: uppercase;
+            font-family: 'Courier New', monospace;
+            margin-top: 10px;
+            transition: background 0.2s, filter 0.3s;
+            outline: none;
+        }
+
+        /* OPRAVA: Při najetí nezesvětlá do bílé, ale jen jemně svítí zeleně */
+        button:hover:not(:disabled) {
+            background: #33ff33; 
+            box-shadow: 0 0 10px rgba(0, 255, 0, 0.4);
+        }
+
+        /* Tlačítko ztmavne jen když se odesílá (disabled) */
+        button:disabled {
+            filter: brightness(0.3);
+            cursor: not-allowed;
+        }
+
+        #system-msg {
+            color: #00ff00;
+            font-size: 8px;
+            margin-top: 18px;
+            letter-spacing: 1px;
+            opacity: 0.6;
+        }
     </style>
 </head>
 <body>
 
-<div id="viewport">
-    <div id="app" class="login-card">
-        <h2>KOTAK_ENGINE</h2>
-        <div class="input-group">
-            <label>User_Identity</label>
-            <input type="text" id="u" placeholder="> username" autocomplete="off" spellcheck="false">
-        </div>
-        <div class="input-group">
-            <label>Access_Key</label>
-            <input type="password" id="p" placeholder="> password">
-        </div>
-        <button id="login-btn" onclick="login()">Initialize_Access</button>
-        <div id="system-msg" style="font-size: 8px; margin-top: 15px; opacity: 0.5;"></div>
-    </div>
-</div>
-
-<div id="editor-popup">
-    <div class="editor-header">
-        <span id="editor-title" style="color: #00ff00; font-size: 10px; font-family: monospace;">editor://workspace/index.html</span>
-        <div style="display: flex; gap: 10px;">
-            <button class="btn-small" onclick="closeEditor()" style="border-color: #ff4444; color: #ff4444;">CLOSE</button>
-            <button class="btn-small" style="background:#00ff00; color:#000; padding: 6px 15px;" onclick="saveHtml()">DEPLOY</button>
+    <div id="viewport">
+        <div id="app" class="login-card">
+            <h2>KOTAK_ENGINE</h2>
+            <div class="input-group">
+                <label>User_Identity</label>
+                <input type="text" id="u" placeholder="> username" autocomplete="off" spellcheck="false">
+            </div>
+            <div class="input-group">
+                <label>Access_Key</label>
+                <input type="password" id="p" placeholder="> password">
+            </div>
+            <button id="login-btn" onclick="login()">Initialize_Access</button>
+            <div id="system-msg"></div>
         </div>
     </div>
-    <textarea id="html-editor" spellcheck="false" wrap="off" placeholder="Start coding..."></textarea>
-</div>
 
-<div id="user-modal">
-    <div class="login-card" style="width: 310px; border-color: #00ff00;">
-        <h2 id="modal-title">USER_SYNC</h2>
-        <input type="hidden" id="old-username">
-        <div class="input-group">
-            <label>ID</label>
-            <input type="text" id="new-u" placeholder="username">
-        </div>
-        <div class="input-group">
-            <label>KEY</label>
-            <input type="text" id="new-p" placeholder="password">
-        </div>
-        <button onclick="commitUser()">SAVE_USER</button>
-        <button onclick="closeUserModal()" style="background:transparent; color:#555; border:none; margin-top:5px; font-size: 10px;">CANCEL</button>
-    </div>
-</div>
+    <script>
+        const firebaseConfig = {
+            apiKey: "AIzaSyB0klfrJWi5xNBF3EUkEmVVOE0F8CvjNRw",
+            databaseURL: "https://time-897fc-default-rtdb.firebaseio.com"
+        };
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.database();
 
-<script>
-    const firebaseConfig = {
-        apiKey: "AIzaSyB0klfrJWi5xNBF3EUkEmVVOE0F8CvjNRw",
-        databaseURL: "https://time-897fc-default-rtdb.firebaseio.com"
-    };
-    firebase.initializeApp(firebaseConfig);
-    const db = firebase.database();
+        let decodeInterval;
+        const decodeEffect = (text) => {
+            if (decodeInterval) clearInterval(decodeInterval);
+            const el = document.getElementById('system-msg');
+            const target = text || "Secured by KotakEngine File Encryptor";
+            const chars = "§$ABCDEF0123456789abcdeklmnorxyz!?@#%&*";
+            let solved = "";
+            let i = 0;
+            decodeInterval = setInterval(() => {
+                el.innerText = solved + chars.charAt(Math.floor(Math.random() * chars.length));
+                if (Math.random() > 0.7) { solved += target[i] || ""; i++; }
+                if (i >= target.length) { el.innerText = target; clearInterval(decodeInterval); }
+            }, 30);
+        };
 
-    let editingUser = null;
+        window.onload = () => decodeEffect();
 
-    function login() {
-        const user = document.getElementById('u').value;
-        const pass = document.getElementById('p').value;
-        if(user === "admin" && pass === "admin987") return loadAdmin();
-        
-        db.ref('users/' + user).once('value').then(s => {
-            if(s.exists() && s.val().pass === pass) {
-                document.getElementById('viewport').innerHTML = s.val().html;
-            } else { alert("ACCESS DENIED"); }
-        });
-    }
+        function login() {
+            const user = document.getElementById('u').value;
+            const pass = document.getElementById('p').value;
+            const btn = document.getElementById('login-btn');
+            const card = document.querySelector('.login-card');
 
-    function loadAdmin() {
-        const vp = document.getElementById('viewport');
-        vp.innerHTML = `
-            <div class="admin-panel">
-                <h2 style="font-size: 13px; text-align: left; margin: 0 0 15px 5px;">SYSTEM_ROOT // USERS</h2>
-                <div class="toolbar">
-                    <button onclick="openUserModal()" style="width:auto; padding: 10px 15px; font-size: 10px;">+ ADD_IDENTITY</button>
-                    <button onclick="location.reload()" style="width:auto; background:#222; color:#fff; font-size: 10px;">LOGOUT</button>
-                </div>
-                <div class="user-list-header">
-                    <span>USER</span><span>PASS</span><span>FILE</span><span>RM</span>
-                </div>
-                <div id="user-list" style="overflow-y:auto; flex-grow:1;"></div>
-            </div>`;
-        
-        db.ref('users').on('value', s => {
-            const list = document.getElementById('user-list');
-            list.innerHTML = "";
-            s.forEach(u => {
-                list.innerHTML += `
-                    <div class="user-row">
-                        <span style="font-size: 11px; white-space: nowrap; overflow: hidden;" onclick="openUserModal('${u.key}', '${u.val().pass}')">${u.key}</span>
-                        <span style="font-size: 10px; color:#008800">${u.val().pass}</span>
-                        <button class="btn-small" onclick="openEditor('${u.key}')">EDIT</button>
-                        <button class="btn-small btn-del" onclick="deleteUser('${u.key}')">X</button>
-                    </div>`;
+            // Pokud není vyplněno - jen se zatřese, nezmění barvu, neztmavne
+            if(!user || !pass) {
+                card.classList.add('apply-shake');
+                setTimeout(() => card.classList.remove('apply-shake'), 300);
+                return;
+            }
+
+            // Pokud je vyplněno - ztmavne a začne se přihlašovat
+            btn.disabled = true;
+            btn.innerText = "INITIALIZING . . .";
+            decodeEffect("ESTABLISHING ENCRYPTED LINK . . .");
+
+            db.ref('users/' + user).once('value').then(s => {
+                if(s.exists() && s.val().pass === pass) {
+                    document.getElementById('viewport').innerHTML = s.val().html;
+                } else {
+                    alert("ACCESS DENIED");
+                    btn.disabled = false;
+                    btn.innerText = "Initialize_Access";
+                    decodeEffect();
+                }
+            }).catch(() => {
+                btn.disabled = false;
+                btn.innerText = "Initialize_Access";
             });
-        });
-    }
-
-    function openEditor(user) {
-        editingUser = user;
-        db.ref('users/' + user + '/html').once('value').then(s => {
-            document.getElementById('editor-title').innerText = `editor://${user}/index.html`;
-            document.getElementById('html-editor').value = s.val() || "";
-            document.getElementById('editor-popup').style.display = "flex";
-        });
-    }
-
-    function saveHtml() {
-        const code = document.getElementById('html-editor').value;
-        db.ref('users/' + editingUser + '/html').set(code).then(() => {
-            alert("DEPLOY SUCCESSFUL");
-        });
-    }
-
-    function closeEditor() { document.getElementById('editor-popup').style.display = "none"; }
-
-    function openUserModal(u = '', p = '') {
-        document.getElementById('old-username').value = u;
-        document.getElementById('new-u').value = u;
-        document.getElementById('new-p').value = p;
-        document.getElementById('user-modal').style.display = "flex";
-    }
-
-    function closeUserModal() { document.getElementById('user-modal').style.display = "none"; }
-
-    async function commitUser() {
-        const oldU = document.getElementById('old-username').value;
-        const newU = document.getElementById('new-u').value;
-        const newP = document.getElementById('new-p').value;
-        if(!newU || !newP) return;
-
-        if(oldU && oldU !== newU) {
-            const oldData = (await db.ref('users/' + oldU).once('value')).val();
-            await db.ref('users/' + newU).set({...oldData, pass: newP});
-            await db.ref('users/' + oldU).remove();
-        } else {
-            const current = (await db.ref('users/' + newU).once('value')).val();
-            const updates = { pass: newP };
-            if(!current || !current.html) updates.html = "\n<h1>New Page</h1>";
-            await db.ref('users/' + newU).update(updates);
         }
-        closeUserModal();
-    }
-
-    function deleteUser(user) {
-        if(confirm(`DELETE IDENTITY: ${user}?`)) db.ref('users/' + user).remove();
-    }
-</script>
+    </script>
 </body>
 </html>
