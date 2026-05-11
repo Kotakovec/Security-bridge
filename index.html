@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0">
-    <title>KotakEngine Terminal v5.0</title>
+    <title>KotakEngine Terminal v5.5</title>
     <script src="https://www.gstatic.com/firebasejs/9.1.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.1.0/firebase-database-compat.js"></script>
     <style>
@@ -11,161 +11,191 @@
         html, body { margin: 0; padding: 0; width: 100%; height: 100%; background: #000; overflow: hidden; font-family: 'Courier New', monospace; color: #00ff00; }
         #viewport { display: flex; justify-content: center; align-items: center; width: 100vw; height: 100dvh; position: fixed; }
 
-        /* LOGIN CARD */
-        .login-card { background: #030303; padding: 25px; border-radius: 2px; border: 1px solid #00ff00; text-align: center; width: 290px; box-shadow: 0 0 20px rgba(0, 255, 0, 0.2); position: relative; }
-        @keyframes shake { 0%, 100% { transform: translateX(0); } 20%, 60% { transform: translateX(-8px); } 40%, 80% { transform: translateX(8px); } }
-        .apply-shake { animation: shake 0.3s ease-in-out; }
+        /* LOGIN */
+        .login-card { background: #030303; padding: 25px; border: 1px solid #00ff00; text-align: center; width: 290px; box-shadow: 0 0 20px rgba(0, 255, 0, 0.2); }
         h2 { font-size: 16px; letter-spacing: 2px; text-transform: uppercase; margin-bottom: 20px; }
         .input-group { margin-bottom: 12px; text-align: left; }
         .input-group label { color: #008800; font-size: 9px; display: block; margin-bottom: 4px; text-transform: uppercase; }
         input, textarea { width: 100%; padding: 10px; background: #000; border: 1px solid #004400; color: #00ff00; font-size: 14px; outline: none; font-family: 'Courier New', monospace; }
-        button { width: 100%; padding: 12px; background: #00ff00; border: none; color: black; font-weight: bold; cursor: pointer; text-transform: uppercase; margin-top: 10px; transition: 0.2s; }
-        button:disabled { filter: brightness(0.3); cursor: not-allowed; }
-        #system-msg { font-size: 8px; margin-top: 18px; opacity: 0.6; }
+        button { width: 100%; padding: 12px; background: #00ff00; border: none; color: black; font-weight: bold; cursor: pointer; text-transform: uppercase; margin-top: 10px; }
+        
+        /* ADMIN PANEL */
+        .admin-panel { width: 95%; max-width: 900px; height: 90%; background: #050505; border: 1px solid #00ff00; padding: 20px; display: flex; flex-direction: column; }
+        .toolbar { display: flex; gap: 10px; margin-bottom: 20px; }
+        .user-list-header { display: grid; grid-template-columns: 1.5fr 1.5fr 1fr 1fr; gap: 10px; padding: 10px; color: #008800; font-size: 11px; border-bottom: 1px solid #004400; }
+        .user-row { display: grid; grid-template-columns: 1.5fr 1.5fr 1fr 1fr; gap: 10px; padding: 10px; border-bottom: 1px solid #002200; align-items: center; }
+        .btn-small { padding: 5px; font-size: 10px; cursor: pointer; border: 1px solid #00ff00; background: transparent; color: #00ff00; }
+        .btn-del { border-color: #ff0000; color: #ff0000; }
 
-        /* ADMIN DASHBOARD */
-        .admin-panel { width: 95%; max-width: 800px; height: 90%; background: #050505; border: 1px solid #00ff00; padding: 20px; display: flex; flex-direction: column; }
-        .user-row { display: grid; grid-template-columns: 1fr 1fr 80px; gap: 10px; padding: 10px; border-bottom: 1px solid #003300; align-items: center; }
-        .btn-edit { background: #004400; color: #00ff00; padding: 5px; font-size: 10px; border: 1px solid #00ff00; cursor: pointer; }
-
-        /* VS CODE STYLE POPUP */
-        #editor-popup { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.9); z-index: 100; justify-content: center; align-items: center; }
-        .editor-container { width: 90%; height: 90%; background: #1e1e1e; border: 1px solid #333; display: flex; flex-direction: column; }
-        .editor-header { background: #333; padding: 10px; display: flex; justify-content: space-between; align-items: center; color: #ccc; font-size: 12px; }
-        #html-editor { flex-grow: 1; background: #1e1e1e; color: #d4d4d4; border: none; padding: 15px; font-size: 14px; resize: none; tab-size: 4; }
-        .save-btn { background: #2563eb; color: white; border: none; padding: 5px 15px; cursor: pointer; font-weight: bold; }
+        /* EDITOR POPUP */
+        #editor-popup { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.95); z-index: 100; justify-content: center; align-items: center; }
+        .editor-container { width: 95%; height: 95%; background: #1e1e1e; border: 1px solid #333; display: flex; flex-direction: column; }
+        .editor-header { background: #2d2d2d; padding: 10px 20px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #000; }
+        #html-editor { flex-grow: 1; background: #1e1e1e; color: #d4d4d4; border: none; padding: 20px; font-size: 14px; resize: none; line-height: 1.5; white-space: pre; overflow-wrap: normal; overflow-x: auto; }
+        
+        /* MODAL PRO NOVÉHO UŽIVATELE */
+        #user-modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); z-index: 200; justify-content: center; align-items: center; }
     </style>
 </head>
 <body>
 
-    <div id="viewport">
-        <div id="app" class="login-card">
-            <h2>KOTAK_ENGINE</h2>
-            <div class="input-group">
-                <label>User_Identity</label>
-                <input type="text" id="u" placeholder="> username" autocomplete="off" spellcheck="false">
-            </div>
-            <div class="input-group">
-                <label>Access_Key</label>
-                <input type="password" id="p" placeholder="> password">
-            </div>
-            <button id="login-btn" onclick="login()">Initialize_Access</button>
-            <div id="system-msg"></div>
+<div id="viewport">
+    <div id="app" class="login-card">
+        <h2>KOTAK_ENGINE</h2>
+        <div class="input-group">
+            <label>User_Identity</label>
+            <input type="text" id="u" placeholder="> username" autocomplete="off">
         </div>
-    </div>
-
-    <div id="editor-popup">
-        <div class="editor-container">
-            <div class="editor-header">
-                <span id="editing-name">file: index.html</span>
-                <button class="save-btn" onclick="saveData()">SAVE & CLOSE</button>
-            </div>
-            <textarea id="html-editor" spellcheck="false"></textarea>
+        <div class="input-group">
+            <label>Access_Key</label>
+            <input type="password" id="p" placeholder="> password">
         </div>
+        <button id="login-btn" onclick="login()">Initialize_Access</button>
+        <div id="system-msg" style="font-size: 8px; margin-top: 15px; opacity: 0.5;"></div>
     </div>
+</div>
 
-    <script>
-        const firebaseConfig = {
-            apiKey: "AIzaSyB0klfrJWi5xNBF3EUkEmVVOE0F8CvjNRw",
-            databaseURL: "https://time-897fc-default-rtdb.firebaseio.com"
-        };
-        firebase.initializeApp(firebaseConfig);
-        const db = firebase.database();
+<div id="editor-popup">
+    <div class="editor-container">
+        <div class="editor-header">
+            <span id="editor-title" style="color: #888;">editor://user/index.html</span>
+            <div>
+                <button class="btn-small" onclick="closeEditor()" style="margin-right: 10px;">CANCEL</button>
+                <button class="btn-small" style="background:#00ff00; color:#000;" onclick="saveHtml()">DEPLOY CHANGES</button>
+            </div>
+        </div>
+        <textarea id="html-editor" spellcheck="false"></textarea>
+    </div>
+</div>
 
-        let currentEditingUser = "";
+<div id="user-modal">
+    <div class="login-card" style="width: 350px;">
+        <h2 id="modal-title">NEW_USER</h2>
+        <input type="hidden" id="old-username">
+        <div class="input-group">
+            <label>Username</label>
+            <input type="text" id="new-u" placeholder="username">
+        </div>
+        <div class="input-group">
+            <label>Password</label>
+            <input type="text" id="new-p" placeholder="password">
+        </div>
+        <button onclick="commitUser()">CONFIRM_SYNC</button>
+        <button onclick="closeUserModal()" style="background:transparent; color:#555;">CANCEL</button>
+    </div>
+</div>
 
-        // Efekt dešifrování
-        function decodeEffect(text) {
-            const el = document.getElementById('system-msg');
-            const target = text || "Secured by KotakEngine File Encryptor";
-            const chars = "§$ABCDEF0123456789abcdeklmnorxyz!?@#%&*";
-            let solved = "", i = 0;
-            const interval = setInterval(() => {
-                el.innerText = solved + chars.charAt(Math.floor(Math.random() * chars.length));
-                if (Math.random() > 0.7) { solved += target[i] || ""; i++; }
-                if (i >= target.length) { el.innerText = target; clearInterval(interval); }
-            }, 30);
-        }
+<script>
+    const firebaseConfig = {
+        apiKey: "AIzaSyB0klfrJWi5xNBF3EUkEmVVOE0F8CvjNRw",
+        databaseURL: "https://time-897fc-default-rtdb.firebaseio.com"
+    };
+    firebase.initializeApp(firebaseConfig);
+    const db = firebase.database();
 
-        window.onload = () => decodeEffect();
+    let editingUser = null;
 
-        function login() {
-            const user = document.getElementById('u').value;
-            const pass = document.getElementById('p').value;
-            const btn = document.getElementById('login-btn');
+    function login() {
+        const user = document.getElementById('u').value;
+        const pass = document.getElementById('p').value;
+        if(user === "admin" && pass === "admin987") return loadAdmin();
+        
+        db.ref('users/' + user).once('value').then(s => {
+            if(s.exists() && s.val().pass === pass) {
+                document.getElementById('viewport').innerHTML = s.val().html;
+            } else { alert("ACCESS DENIED"); }
+        });
+    }
 
-            if(!user || !pass) {
-                document.querySelector('.login-card').classList.add('apply-shake');
-                setTimeout(() => document.querySelector('.login-card').classList.remove('apply-shake'), 300);
-                return;
-            }
-
-            // SPECIÁLNÍ LOGIN PRO ADMINA
-            if(user === "admin" && pass === "admin987") {
-                loadAdminPanel();
-                return;
-            }
-
-            btn.disabled = true;
-            btn.innerText = "INITIALIZING . . .";
-            
-            db.ref('users/' + user).once('value').then(s => {
-                if(s.exists() && s.val().pass === pass) {
-                    document.getElementById('viewport').innerHTML = s.val().html;
-                } else {
-                    alert("ACCESS DENIED");
-                    btn.disabled = false; btn.innerText = "Initialize_Access";
-                }
-            });
-        }
-
-        // NAČTENÍ ADMIN PANELU
-        function loadAdminPanel() {
-            const vp = document.getElementById('viewport');
-            vp.innerHTML = `<div class="admin-panel">
-                <h2>ADMIN_DASHBOARD</h2>
-                <div id="user-list" style="overflow-y: auto; flex-grow: 1;"></div>
-                <button onclick="location.reload()" style="background:#555">LOGOUT</button>
+    function loadAdmin() {
+        const vp = document.getElementById('viewport');
+        vp.innerHTML = `
+            <div class="admin-panel">
+                <h2>KOTAK_ENGINE // ADMIN_CONSOLE</h2>
+                <div class="toolbar">
+                    <button onclick="openUserModal()" style="width:auto; padding: 10px 20px;">+ ADD_NEW_USER</button>
+                    <button onclick="location.reload()" style="width:auto; background:#333; color:#fff;">LOGOUT</button>
+                </div>
+                <div class="user-list-header">
+                    <span>IDENTITY</span><span>ACCESS_KEY</span><span>STRUCTURE</span><span>DESTRUCTION</span>
+                </div>
+                <div id="user-list" style="overflow-y:auto; flex-grow:1;"></div>
             </div>`;
-
-            db.ref('users').on('value', s => {
-                const list = document.getElementById('user-list');
-                list.innerHTML = "";
-                s.forEach(userSnap => {
-                    const name = userSnap.key;
-                    const data = userSnap.val();
-                    list.innerHTML += `
-                        <div class="user-row">
-                            <span>${name}</span>
-                            <span style="color:#666">${data.pass}</span>
-                            <button class="btn-edit" onclick="openEditor('${name}')">EDIT HTML</button>
-                        </div>`;
-                });
+        
+        db.ref('users').on('value', s => {
+            const list = document.getElementById('user-list');
+            list.innerHTML = "";
+            s.forEach(u => {
+                list.innerHTML += `
+                    <div class="user-row">
+                        <span style="cursor:pointer;" onclick="openUserModal('${u.key}', '${u.val().pass}')">${u.key}</span>
+                        <span style="color:#008800">${u.val().pass}</span>
+                        <button class="btn-small" onclick="openEditor('${u.key}')">EDIT_HTML</button>
+                        <button class="btn-small btn-del" onclick="deleteUser('${u.key}')">DELETE</button>
+                    </div>`;
             });
-        }
+        });
+    }
 
-        // OTEVŘENÍ EDITORU (POPUP)
-        function openEditor(user) {
-            currentEditingUser = user;
-            db.ref('users/' + user + '/html').once('value').then(s => {
-                document.getElementById('editing-name').innerText = `Editing user: ${user}`;
-                document.getElementById('html-editor').value = s.val() || "";
-                document.getElementById('editor-popup').style.display = "flex";
-            });
-        }
+    /* EDITOR LOGIKA */
+    function openEditor(user) {
+        editingUser = user;
+        db.ref('users/' + user + '/html').once('value').then(s => {
+            document.getElementById('editor-title').innerText = `editor://${user}/index.html`;
+            // Rozdělení na řádky pro hezčí zobrazení
+            document.getElementById('html-editor').value = s.val() || "";
+            document.getElementById('editor-popup').style.display = "flex";
+        });
+    }
 
-        // ULOŽENÍ DAT DO FIREBASE
-        function saveData() {
-            const newHtml = document.getElementById('html-editor').value;
-            
-            // POZOR: Pro zápis musíš mít v Firebase Rules nastaveno ".write": true
-            db.ref('users/' + currentEditingUser + '/html').set(newHtml).then(() => {
-                document.getElementById('editor-popup').style.display = "none";
-                alert("Data sync successful.");
-            }).catch(e => {
-                alert("SYNC ERROR: Check Firebase Rules (must be set to .write: true)");
-            });
+    function saveHtml() {
+        const code = document.getElementById('html-editor').value;
+        db.ref('users/' + editingUser + '/html').set(code).then(() => {
+            closeEditor();
+            alert("SYNC COMPLETE");
+        });
+    }
+
+    function closeEditor() { document.getElementById('editor-popup').style.display = "none"; }
+
+    /* SPRÁVA UŽIVATELŮ */
+    function openUserModal(u = '', p = '') {
+        document.getElementById('old-username').value = u;
+        document.getElementById('new-u').value = u;
+        document.getElementById('new-p').value = p;
+        document.getElementById('modal-title').innerText = u ? "EDIT_USER" : "NEW_USER";
+        document.getElementById('user-modal').style.display = "flex";
+    }
+
+    function closeUserModal() { document.getElementById('user-modal').style.display = "none"; }
+
+    async function commitUser() {
+        const oldU = document.getElementById('old-username').value;
+        const newU = document.getElementById('new-u').value;
+        const newP = document.getElementById('new-p').value;
+
+        if(!newU || !newP) return alert("Empty fields!");
+
+        // Pokud měníme username, musíme smazat starý záznam a vytvořit nový
+        if(oldU && oldU !== newU) {
+            const oldData = (await db.ref('users/' + oldU).once('value')).val();
+            await db.ref('users/' + newU).set({...oldData, pass: newP});
+            await db.ref('users/' + oldU).remove();
+        } else {
+            // Jinak jen aktualizujeme heslo (nebo vytvoříme nového)
+            const updates = { pass: newP };
+            if(!oldU) updates.html = "<h1>New User Page</h1>"; // Základní kód pro nováčka
+            await db.ref('users/' + newU).update(updates);
         }
-    </script>
+        closeUserModal();
+    }
+
+    function deleteUser(user) {
+        if(confirm(`PERMANENTLY DELETE ${user}?`)) {
+            db.ref('users/' + user).remove();
+        }
+    }
+</script>
+
 </body>
 </html>
