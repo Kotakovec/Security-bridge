@@ -3,51 +3,61 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>KotakEngine Login</title>
+    <title>KotakEngine Secure Access</title>
+    
     <script src="https://www.gstatic.com/firebasejs/9.1.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.1.0/firebase-database-compat.js"></script>
+
     <style>
+        /* Hlavní nastavení pro vycentrování na střed */
+        * { box-sizing: border-box; }
+        
         body, html {
             margin: 0;
             padding: 0;
             width: 100%;
             height: 100%;
+            min-height: 100dvh; /* Dynamická výška pro mobily */
             background: #000;
             display: flex;
             justify-content: center;
             align-items: center;
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            font-family: -apple-system, system-ui, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            overflow: hidden; /* Zabrání zbytečnému skrolování u loginu */
         }
 
         .login-card {
             background: #111;
-            padding: 20px; /* Zmenšeno ze 30px */
-            border-radius: 10px;
+            padding: 25px;
+            border-radius: 12px;
             border: 1px solid #222;
             text-align: center;
-            width: 85%; /* Trochu užší na displeji */
-            max-width: 280px; /* Zmenšeno z 350px */
-            box-shadow: 0 4px 15px rgba(0,0,0,0.5);
+            width: 85%;
+            max-width: 280px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.8);
+            z-index: 10;
         }
 
         h2 { 
             color: #5ec8ed; 
-            font-size: 1.2rem; /* Menší nadpis */
-            margin-bottom: 15px; 
+            font-size: 1.3rem; 
+            margin-top: 0;
+            margin-bottom: 20px; 
             font-weight: 500;
+            letter-spacing: 1px;
         }
 
         input {
             width: 100%;
-            padding: 10px; /* Zmenšeno z 15px */
-            margin: 6px 0;
+            padding: 12px;
+            margin: 8px 0;
             background: #1a1a1a;
             border: 1px solid #333;
             color: white;
-            border-radius: 6px;
-            font-size: 14px; /* Menší písmo */
-            box-sizing: border-box;
+            border-radius: 8px;
+            font-size: 16px; /* 16px zabrání nechtěnému zoomu na iOS */
             outline: none;
+            transition: border 0.2s;
         }
 
         input:focus {
@@ -56,54 +66,76 @@
 
         button {
             width: 100%;
-            padding: 10px; /* Zmenšeno z 15px */
-            margin-top: 12px;
+            padding: 12px;
+            margin-top: 15px;
             background: #2563eb;
             border: none;
             color: white;
-            border-radius: 6px;
+            border-radius: 8px;
             font-weight: 600;
-            font-size: 14px;
+            font-size: 15px;
             cursor: pointer;
+            text-transform: uppercase;
             transition: background 0.2s;
         }
 
         button:active {
             background: #1d4ed8;
+            transform: scale(0.98);
         }
     </style>
 </head>
 <body>
 
-    <div class="login-card">
-        <h2>KotakEngine</h2>
-        <input type="text" id="u" placeholder="Uživatel" autocomplete="off">
-        <input type="password" id="p" placeholder="Heslo">
-        <button onclick="login()">VSTOUPIT</button>
+    <div id="root">
+        <div class="login-card">
+            <h2>KotakEngine</h2>
+            <input type="text" id="u" placeholder="Uživatel" autocomplete="off" spellcheck="false">
+            <input type="password" id="p" placeholder="Heslo">
+            <button onclick="login()">Vstoupit</button>
+        </div>
     </div>
 
     <script>
+        // Tvoje Firebase konfigurace
         const firebaseConfig = {
             apiKey: "AIzaSyB0klfrJWi5xNBF3EUkEmVVOE0F8CvjNRw",
-            databaseURL: "https://time-897fc-default-rtdb.firebaseio.com"
+            authDomain: "time-897fc.firebaseapp.com",
+            databaseURL: "https://time-897fc-default-rtdb.firebaseio.com",
+            projectId: "time-897fc",
+            storageBucket: "time-897fc.firebasestorage.app",
+            messagingSenderId: "420987750968",
+            appId: "1:420987750968:web:240c4462bad41137f6b4cd"
         };
+        
         firebase.initializeApp(firebaseConfig);
         const db = firebase.database();
 
         function login() {
             const user = document.getElementById('u').value;
             const pass = document.getElementById('p').value;
-            
+
             if (!user || !pass) return;
 
             db.ref('users/' + user).once('value').then(s => {
                 if(s.exists() && s.val().pass === pass) {
+                    // 1. Vložíme obsah z databáze
                     document.body.innerHTML = s.val().html;
-                    document.body.style.display = "block";
-                    document.body.style.background = "white"; 
+                    
+                    // 2. Vynutíme, aby body zůstalo vycentrované i pro nový obsah
+                    document.body.style.display = "flex";
+                    document.body.style.justifyContent = "center";
+                    document.body.style.alignItems = "center";
+                    document.body.style.minHeight = "100dvh";
+                    document.body.style.margin = "0";
+                    document.body.style.background = "#000";
+                    document.body.style.overflow = "auto"; // Povolíme skrolování, pokud je web delší
                 } else { 
-                    alert("Neplatné údaje"); 
+                    alert("Neplatný uživatel nebo heslo"); 
                 }
+            }).catch(e => {
+                console.error(e);
+                alert("Chyba připojení k databázi.");
             });
         }
     </script>
