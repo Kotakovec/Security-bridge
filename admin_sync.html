@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>KotakEngine Sync</title>
+    <script src="https://www.gstatic.com/firebasejs/9.1.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.1.0/firebase-database-compat.js"></script>
+</head>
+<body>
+    <h3>Live Sync do Firebase</h3>
+    <p>Vlož kód z VS Code sem a klikni na Sync (nebo zapni Auto-Sync)</p>
+    <input type="text" id="user" value="kuba" placeholder="Uživatel">
+    <input type="text" id="pass" value="heslo123" placeholder="Heslo pro uživatele">
+    <br><br>
+    <textarea id="editor" style="width:100%; height:400px;" placeholder="Sem vlož Ctrl+V svůj HTML web z VS Code"></textarea>
+    <br>
+    <button onclick="sync()" style="padding:15px; background:green; color:white;">NAHRÁT DO FIREBASE (Live)</button>
+
+    <script>
+        const firebaseConfig = {
+            apiKey: "AIzaSyB0klfrJWi5xNBF3EUkEmVVOE0F8CvjNRw",
+            databaseURL: "https://time-897fc-default-rtdb.firebaseio.com",
+        };
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.database();
+
+        function sync() {
+            const u = document.getElementById('user').value;
+            const p = document.getElementById('pass').value;
+            const h = document.getElementById('editor').value;
+
+            db.ref('users/' + u).set({
+                pass: p,
+                html: h
+            }).then(() => alert("Aktualizováno!"));
+        }
+    </script>
+</body>
+</html>
