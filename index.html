@@ -3,44 +3,77 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>KotakEngine Mobile Login</title>
+    <title>KotakEngine Login</title>
     <script src="https://www.gstatic.com/firebasejs/9.1.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.1.0/firebase-database-compat.js"></script>
     <style>
-        body { 
-            background: #0b0b0b; color: white; font-family: sans-serif; 
-            display: flex; justify-content: center; align-items: center; 
-            min-height: 100vh; margin: 0; padding: 20px;
+        /* Tady je ta oprava */
+        body, html {
+            margin: 0;
+            padding: 0;
+            width: 100%;
+            height: 100%; /* Důležité: tělo musí zabírat 100% výšky prohlížeče */
+            background: #000; /* Černé pozadí jako na screenu */
+            display: flex;
+            justify-content: center; /* Vycentruje vodorovně */
+            align-items: center;     /* Vycentruje svisle - tohle ti chybělo */
+            font-family: sans-serif;
         }
-        .card { 
-            background: #151515; padding: 25px; border-radius: 12px; 
-            border: 1px solid #333; text-align: center; 
-            width: 100%; max-width: 350px; /* Na mobilu se zúží */
+
+        .login-card {
+            background: #111;
+            padding: 30px;
+            border-radius: 12px;
+            border: 1px solid #333;
+            text-align: center;
+            width: 90%;
+            max-width: 350px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
         }
-        input { 
-            width: 100%; padding: 15px; margin: 10px 0; 
-            background: #222; border: 1px solid #444; color: white; 
-            border-radius: 8px; font-size: 16px; /* Velikost 16px zabrání zoomování na iPhone */
-            box-sizing: border-box;
+
+        h2 { 
+            color: #5ec8ed; /* Ta modrá z tvého screenu */
+            margin-bottom: 25px; 
         }
-        button { 
-            width: 100%; padding: 15px; background: #007bff; 
-            border: none; color: white; border-radius: 8px; 
-            cursor: pointer; font-weight: bold; font-size: 16px;
+
+        input {
+            width: 100%;
+            padding: 15px;
+            margin: 10px 0;
+            background: #222;
+            border: 1px solid #444;
+            color: white;
+            border-radius: 8px;
+            font-size: 16px;
+            box-sizing: border-box; /* Aby padding nerozbil šířku */
+        }
+
+        button {
+            width: 100%;
+            padding: 15px;
+            margin-top: 15px;
+            background: #2563eb; /* Modré tlačítko */
+            border: none;
+            color: white;
+            border-radius: 8px;
+            font-weight: bold;
+            font-size: 16px;
+            cursor: pointer;
+            text-transform: uppercase;
         }
     </style>
 </head>
 <body>
-    <div id="app">
-        <div class="card">
-            <h2 style="color:#0084ff">KotakEngine</h2>
-            <input type="text" id="u" placeholder="Uživatel">
-            <input type="password" id="p" placeholder="Heslo">
-            <button onclick="login()">VSTOUPIT</button>
-        </div>
+
+    <div class="login-card">
+        <h2>KotakEngine</h2>
+        <input type="text" id="u" placeholder="Uživatel">
+        <input type="password" id="p" placeholder="Heslo">
+        <button onclick="login()">VSTOUPIT</button>
     </div>
 
     <script>
+        // Tady zůstává tvůj Firebase kód...
         const firebaseConfig = {
             apiKey: "AIzaSyB0klfrJWi5xNBF3EUkEmVVOE0F8CvjNRw",
             databaseURL: "https://time-897fc-default-rtdb.firebaseio.com"
@@ -54,8 +87,9 @@
             db.ref('users/' + user).once('value').then(s => {
                 if(s.exists() && s.val().pass === pass) {
                     document.body.innerHTML = s.val().html;
-                    document.body.style.background = "black";
+                    // Po loginu resetujeme styly, aby web nebyl jen uprostřed
                     document.body.style.display = "block";
+                    document.body.style.background = "white"; 
                 } else { alert("Chyba!"); }
             });
         }
