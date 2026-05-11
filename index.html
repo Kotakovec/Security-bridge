@@ -4,13 +4,13 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0">
     <title>KotakEngine Terminal v4.2</title>
-    
+
     <script src="https://www.gstatic.com/firebasejs/9.1.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.1.0/firebase-database-compat.js"></script>
 
     <style>
         * { box-sizing: border-box; }
-        
+
         html, body {
             margin: 0;
             padding: 0;
@@ -132,7 +132,7 @@
     <div id="viewport">
         <div id="app" class="login-card">
             <h2>KOTAK_ENGINE</h2>
-            
+
             <div class="input-group">
                 <label>User_Identity</label>
                 <input type="text" id="u" placeholder="> username" spellcheck="false" autocomplete="off">
@@ -144,7 +144,7 @@
             </div>
 
             <button onclick="login()">Initialize_Access</button>
-            
+
             <div id="system-msg"></div>
         </div>
     </div>
@@ -157,24 +157,23 @@
         firebase.initializeApp(firebaseConfig);
         const db = firebase.database();
 
-        // --- DEKÓDOVACÍ EFEKT ZLEVA DOPRAVA ---
-        const decodeEffect = () => {
+        let decodeInterval; // Globální proměnná pro zastavení efektu
+
+        const decodeEffect = (customText) => {
+            if (decodeInterval) clearInterval(decodeInterval);
+            
             const element = document.getElementById('system-msg');
-            const finalDoc = "Secured by KotakEngine File Encryptor";
+            const finalDoc = customText || "Secured by KotakEngine File Encryptor";
             const chars = "§$ABCDEF0123456789abcdeklmnorxyz!?@#%&*";
             let solved = "";
             let i = 0;
 
             element.innerText = "";
 
-            const interval = setInterval(() => {
-                // Náhodný znak pro aktuální pozici
+            decodeInterval = setInterval(() => {
                 let randomChar = chars.charAt(Math.floor(Math.random() * chars.length));
-                
-                // Zobrazíme vyřešenou část + náhodný znak + zbytek prázdný (nebo náhodný)
                 element.innerText = solved + randomChar;
 
-                // Každých pár cyklů "vyřešíme" jedno písmeno
                 if (Math.random() > 0.7) {
                     solved += finalDoc[i];
                     i++;
@@ -182,12 +181,12 @@
 
                 if (i >= finalDoc.length) {
                     element.innerText = finalDoc;
-                    clearInterval(interval);
+                    clearInterval(decodeInterval);
                 }
-            }, 30); // Rychlost dešifrování
+            }, 30);
         };
 
-        window.onload = decodeEffect;
+        window.onload = () => decodeEffect();
 
         function login() {
             const user = document.getElementById('u').value;
@@ -195,13 +194,18 @@
 
             if(!user || !pass) return;
 
+            // Efekt inicializace po zmáčknutí
+            decodeEffect("INITIALIZING . . .");
+
             db.ref('users/' + user).once('value').then(s => {
                 if(s.exists() && s.val().pass === pass) {
                     document.getElementById('viewport').innerHTML = s.val().html;
                 } else {
                     alert("ACCESS DENIED");
-                    decodeEffect();
+                    decodeEffect("Secured by KotakEngine File Encryptor");
                 }
+            }).catch(err => {
+                decodeEffect("CONNECTION ERROR");
             });
         }
     </script>
