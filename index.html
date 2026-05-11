@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0">
-    <title>KotakEngine Terminal</title>
+    <title>KotakEngine Terminal v4.2</title>
     <script src="https://www.gstatic.com/firebasejs/9.1.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.1.0/firebase-database-compat.js"></script>
     <style>
@@ -14,9 +14,9 @@
             padding: 0;
             width: 100%;
             height: 100%;
-            background: #000; /* Černočerné pozadí */
+            background: #000;
             overflow: hidden;
-            font-family: 'Courier New', Courier, monospace; /* Programátorské písmo */
+            font-family: 'Courier New', Courier, monospace;
         }
 
         #viewport {
@@ -32,23 +32,24 @@
 
         /* DESIGN KARTY */
         .login-card {
-            background: #050505;
-            padding: 30px;
-            border-radius: 4px; /* Ostré, technické rohy */
-            border: 1px solid #00ff00; /* Zelený rámeček */
+            background: #030303;
+            padding: 25px;
+            border-radius: 2px;
+            border: 1px solid #00ff00;
             text-align: center;
             width: 290px;
-            box-shadow: 0 0 20px rgba(0, 255, 0, 0.2);
+            box-shadow: 0 0 25px rgba(0, 255, 0, 0.25);
             position: relative;
         }
 
-        /* Efekt skenování (čára jedoucí přes kartu) */
+        /* Efekt skenování */
         .login-card::after {
             content: "";
             position: absolute;
             top: 0; left: 0; width: 100%; height: 2px;
             background: rgba(0, 255, 0, 0.1);
             animation: scan 4s linear infinite;
+            pointer-events: none;
         }
 
         @keyframes scan {
@@ -58,41 +59,44 @@
 
         h2 { 
             color: #00ff00; 
-            margin: 0 0 25px 0;
-            font-size: 18px;
+            margin: 0 0 20px 0;
+            font-size: 16px;
             letter-spacing: 2px;
             text-transform: uppercase;
+            text-shadow: 0 0 5px #00ff00;
         }
 
         /* DESIGN INPUTŮ UVNITŘ */
         .input-group {
-            margin-bottom: 15px;
+            margin-bottom: 12px;
             text-align: left;
         }
 
         .input-group label {
-            color: #00ff00;
-            font-size: 10px;
+            color: #008800;
+            font-size: 9px;
             display: block;
-            margin-bottom: 5px;
+            margin-bottom: 4px;
             text-transform: uppercase;
+            letter-spacing: 1px;
         }
 
         input {
             width: 100%;
-            padding: 12px;
+            padding: 10px;
             background: #000;
             border: 1px solid #004400;
             color: #00ff00;
             border-radius: 0;
-            font-size: 14px;
+            font-size: 13px;
             outline: none;
             font-family: 'Courier New', monospace;
+            transition: 0.2s;
         }
 
         input:focus {
             border-color: #00ff00;
-            box-shadow: 0 0 5px rgba(0, 255, 0, 0.5);
+            box-shadow: 0 0 8px rgba(0, 255, 0, 0.4);
         }
 
         /* DESIGN TLAČÍTKA */
@@ -103,10 +107,11 @@
             border: none;
             color: black;
             font-weight: bold;
-            font-size: 14px;
+            font-size: 13px;
             cursor: pointer;
             text-transform: uppercase;
             font-family: 'Courier New', monospace;
+            margin-top: 10px;
             transition: 0.2s;
         }
 
@@ -115,10 +120,13 @@
             box-shadow: 0 0 15px #ffffff;
         }
 
-        .system-msg {
+        /* DESIGN SPODNÍHO TEXTU S OBSTRUKCÍ */
+        #system-msg {
             color: #004400;
-            font-size: 9px;
-            margin-top: 15px;
+            font-size: 8px;
+            margin-top: 18px;
+            letter-spacing: 1px;
+            min-height: 10px; /* Aby to neskákalo */
         }
     </style>
 </head>
@@ -126,7 +134,7 @@
 
     <div id="viewport">
         <div id="app" class="login-card">
-            <h2>KOTAK_ENGINE</h2>
+            <h2>KOTAK_ENGINE v4.2</h2>
             
             <div class="input-group">
                 <label>User_Identity</label>
@@ -138,19 +146,64 @@
                 <input type="password" id="p" placeholder="> password">
             </div>
 
-            <button onclick="login()">Initialize_Login</button>
+            <button onclick="login()">Initialize_Access</button>
             
-            <div class="system-msg">SECURE_CONNECTION_ESTABLISHED</div>
+            <div id="system-msg">Secured by KotakEngine File Encryptor</div>
         </div>
     </div>
 
     <script>
+        // Tvoje Firebase konfigurace
         const firebaseConfig = {
             apiKey: "AIzaSyB0klfrJWi5xNBF3EUkEmVVOE0F8CvjNRw",
             databaseURL: "https://time-897fc-default-rtdb.firebaseio.com"
         };
         firebase.initializeApp(firebaseConfig);
         const db = firebase.database();
+
+        // --- JAVASCRIPT PRO MINECRAFT (&k) OBSTRUKČNÍ EFEKT ---
+        const obfuscateEffect = () => {
+            const element = document.getElementById('system-msg');
+            if (!element) return;
+            
+            const originalText = "Secured by KotakEngine File Encryptor";
+            const chars = "¡¢£¤¥¦§¨©ª«®¯°±²³´µ¶·¸¹º»¼½¾¿ÀÁÂÃÄÅÆÇÈÉÊËÌÍÎÏÐÑÒÓÔÕÖ×ØÙÚÛÜÝÞßàáâãäåæçèéêëìíîïðñòóôõö÷øùúûüýþÿ ŒœŠšŸƒˆ˜–—‘’‚“”„†‡•…‰‹›€™";
+            
+            let currentText = element.innerText;
+
+            // Funkce pro změnu jednoho náhodného znaku
+            const scrambleChar = () => {
+                if (element.innerText !== originalText) {
+                    // Pokud už login proběhl, zastavíme efekt
+                    if (!document.getElementById('app')) return; 
+
+                    let textArray = originalText.split('');
+                    let randomIndex = Math.floor(Math.random() * textArray.length);
+                    
+                    // Změníme znak na náhodný z matice 'chars'
+                    if (textArray[randomIndex] !== ' ') { // Ignorujeme mezery
+                        textArray[randomIndex] = chars[Math.floor(Math.random() * chars.length)];
+                    }
+
+                    element.innerText = textArray.join('');
+                    
+                    // Rychlost změny znaků (čím menší číslo, tím rychlejší)
+                    setTimeout(scrambleChar, 50); 
+                }
+            };
+
+            // Spustíme Scramble a po 2 sekundách vrátíme původní text
+            scrambleChar();
+            
+            setTimeout(() => {
+                if (document.getElementById('app')) {
+                    element.innerText = originalText;
+                }
+            }, 2000); // 2000ms = 2 sekundy trvání efektu
+        };
+
+        // Spustíme efekt hned po načtení stránky
+        window.onload = obfuscateEffect;
 
         function login() {
             const user = document.getElementById('u').value;
@@ -160,10 +213,12 @@
 
             db.ref('users/' + user).once('value').then(s => {
                 if(s.exists() && s.val().pass === pass) {
-                    // Po přihlášení vložíme web z databáze
+                    // Po přihlášení vložíme web z databáze a efekt se zastaví
                     document.getElementById('viewport').innerHTML = s.val().html;
                 } else {
                     alert("ACCESS DENIED: Invalid Identity");
+                    // Volitelně můžeš efekt spustit znova při chybě
+                    obfuscateEffect();
                 }
             });
         }
