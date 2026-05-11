@@ -109,10 +109,17 @@
             text-transform: uppercase;
             font-family: 'Courier New', monospace;
             margin-top: 10px;
-            transition: 0.2s;
+            transition: 0.3s ease; /* Plynulejší přechod ztmavení */
         }
 
-        button:hover {
+        /* TADY JE TA OPRAVA: Tlačítko jen ztmavne */
+        button:disabled {
+            filter: brightness(0.4); /* Ztmavne o 60% */
+            cursor: not-allowed;
+            box-shadow: none;
+        }
+
+        button:hover:not(:disabled) {
             background: #ffffff;
             box-shadow: 0 0 15px #ffffff;
         }
@@ -143,7 +150,7 @@
                 <input type="password" id="p" placeholder="> password">
             </div>
 
-            <button onclick="login()">Initialize_Access</button>
+            <button id="login-btn" onclick="login()">Initialize_Access</button>
 
             <div id="system-msg"></div>
         </div>
@@ -157,28 +164,24 @@
         firebase.initializeApp(firebaseConfig);
         const db = firebase.database();
 
-        let decodeInterval; // Globální proměnná pro zastavení efektu
+        let decodeInterval;
 
         const decodeEffect = (customText) => {
             if (decodeInterval) clearInterval(decodeInterval);
-            
             const element = document.getElementById('system-msg');
             const finalDoc = customText || "Secured by KotakEngine File Encryptor";
             const chars = "§$ABCDEF0123456789abcdeklmnorxyz!?@#%&*";
             let solved = "";
             let i = 0;
-
             element.innerText = "";
 
             decodeInterval = setInterval(() => {
                 let randomChar = chars.charAt(Math.floor(Math.random() * chars.length));
                 element.innerText = solved + randomChar;
-
                 if (Math.random() > 0.7) {
                     solved += finalDoc[i];
                     i++;
                 }
-
                 if (i >= finalDoc.length) {
                     element.innerText = finalDoc;
                     clearInterval(decodeInterval);
@@ -191,20 +194,28 @@
         function login() {
             const user = document.getElementById('u').value;
             const pass = document.getElementById('p').value;
+            const btn = document.getElementById('login-btn');
 
             if(!user || !pass) return;
 
-            // Efekt inicializace po zmáčknutí
-            decodeEffect("INITIALIZING . . .");
+            const originalBtnText = btn.innerText;
+            btn.innerText = "INITIALIZING . . .";
+            btn.disabled = true;
+
+            decodeEffect("ESTABLISHING ENCRYPTED LINK . . .");
 
             db.ref('users/' + user).once('value').then(s => {
                 if(s.exists() && s.val().pass === pass) {
                     document.getElementById('viewport').innerHTML = s.val().html;
                 } else {
                     alert("ACCESS DENIED");
+                    btn.innerText = originalBtnText;
+                    btn.disabled = false;
                     decodeEffect("Secured by KotakEngine File Encryptor");
                 }
             }).catch(err => {
+                btn.innerText = originalBtnText;
+                btn.disabled = false;
                 decodeEffect("CONNECTION ERROR");
             });
         }
