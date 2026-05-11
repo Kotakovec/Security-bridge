@@ -21,7 +21,6 @@
             font-family: 'Courier New', Courier, monospace;
         }
 
-        /* Kontejner pro absolutní vycentrování */
         #viewport {
             display: flex;
             justify-content: center;
@@ -33,7 +32,6 @@
             left: 0;
         }
 
-        /* DESIGN KARTY TERMINÁLU */
         .login-card {
             background: #030303;
             padding: 25px;
@@ -45,7 +43,6 @@
             position: relative;
         }
 
-        /* Efekt skenovací čáry */
         .login-card::after {
             content: "";
             position: absolute;
@@ -69,7 +66,6 @@
             text-shadow: 0 0 5px #00ff00;
         }
 
-        /* DESIGN VSTUPNÍCH POLÍ */
         .input-group {
             margin-bottom: 12px;
             text-align: left;
@@ -101,7 +97,6 @@
             box-shadow: 0 0 8px rgba(0, 255, 0, 0.4);
         }
 
-        /* DESIGN TLAČÍTKA */
         button {
             width: 100%;
             padding: 12px;
@@ -122,14 +117,13 @@
             box-shadow: 0 0 15px #ffffff;
         }
 
-        /* SPODNÍ TEXT S EFEKTEM */
         #system-msg {
-            color: #004400;
+            color: #00ff00;
             font-size: 8px;
             margin-top: 18px;
             letter-spacing: 1px;
             min-height: 10px;
-            transition: color 0.3s;
+            opacity: 0.7;
         }
     </style>
 </head>
@@ -151,12 +145,11 @@
 
             <button onclick="login()">Initialize_Access</button>
             
-            <div id="system-msg">Iniciace systému...</div>
+            <div id="system-msg"></div>
         </div>
     </div>
 
     <script>
-        // Tvoje Firebase konfigurace
         const firebaseConfig = {
             apiKey: "AIzaSyB0klfrJWi5xNBF3EUkEmVVOE0F8CvjNRw",
             databaseURL: "https://time-897fc-default-rtdb.firebaseio.com"
@@ -164,40 +157,37 @@
         firebase.initializeApp(firebaseConfig);
         const db = firebase.database();
 
-        // --- MINECRAFT OBSTRUKČNÍ EFEKT (&k) ---
-        const obfuscateEffect = () => {
+        // --- DEKÓDOVACÍ EFEKT ZLEVA DOPRAVA ---
+        const decodeEffect = () => {
             const element = document.getElementById('system-msg');
-            if (!element) return;
-            
             const finalDoc = "Secured by KotakEngine File Encryptor";
             const chars = "§$ABCDEF0123456789abcdeklmnorxyz!?@#%&*";
-            let iterations = 0;
-            const maxIterations = 40; 
+            let solved = "";
+            let i = 0;
 
-            const scramble = setInterval(() => {
-                let scrambledText = "";
-                for (let i = 0; i < finalDoc.length; i++) {
-                    if (finalDoc[i] === " ") {
-                        scrambledText += " ";
-                    } else {
-                        scrambledText += chars.charAt(Math.floor(Math.random() * chars.length));
-                    }
-                }
+            element.innerText = "";
+
+            const interval = setInterval(() => {
+                // Náhodný znak pro aktuální pozici
+                let randomChar = chars.charAt(Math.floor(Math.random() * chars.length));
                 
-                element.innerText = scrambledText;
-                iterations++;
+                // Zobrazíme vyřešenou část + náhodný znak + zbytek prázdný (nebo náhodný)
+                element.innerText = solved + randomChar;
 
-                if (iterations >= maxIterations) {
-                    clearInterval(scramble);
-                    element.innerText = finalDoc;
-                    element.style.color = "#00ff00"; // Problikne zeleně při dokončení
-                    setTimeout(() => { element.style.color = "#004400"; }, 300);
+                // Každých pár cyklů "vyřešíme" jedno písmeno
+                if (Math.random() > 0.7) {
+                    solved += finalDoc[i];
+                    i++;
                 }
-            }, 50);
+
+                if (i >= finalDoc.length) {
+                    element.innerText = finalDoc;
+                    clearInterval(interval);
+                }
+            }, 30); // Rychlost dešifrování
         };
 
-        // Spuštění efektu po načtení stránky
-        window.onload = obfuscateEffect;
+        window.onload = decodeEffect;
 
         function login() {
             const user = document.getElementById('u').value;
@@ -207,15 +197,11 @@
 
             db.ref('users/' + user).once('value').then(s => {
                 if(s.exists() && s.val().pass === pass) {
-                    // Po úspěšném loginu přepíšeme vnitřek viewportu obsahem z DB
-                    // Viewport zůstává vycentrovaný
                     document.getElementById('viewport').innerHTML = s.val().html;
                 } else {
-                    alert("ACCESS DENIED: Invalid Identity");
-                    obfuscateEffect(); // Znovu spustí efekt při chybě
+                    alert("ACCESS DENIED");
+                    decodeEffect();
                 }
-            }).catch(e => {
-                alert("DATABASE_ERROR");
             });
         }
     </script>
