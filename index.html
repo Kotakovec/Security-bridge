@@ -3,125 +3,37 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0">
-    <title>KotakEngine Terminal v4.2</title>
-
+    <title>KotakEngine Terminal v5.0</title>
     <script src="https://www.gstatic.com/firebasejs/9.1.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.1.0/firebase-database-compat.js"></script>
-
     <style>
         * { box-sizing: border-box; }
+        html, body { margin: 0; padding: 0; width: 100%; height: 100%; background: #000; overflow: hidden; font-family: 'Courier New', monospace; color: #00ff00; }
+        #viewport { display: flex; justify-content: center; align-items: center; width: 100vw; height: 100dvh; position: fixed; }
 
-        html, body {
-            margin: 0;
-            padding: 0;
-            width: 100%;
-            height: 100%;
-            background: #000;
-            overflow: hidden;
-            font-family: 'Courier New', Courier, monospace;
-        }
+        /* LOGIN CARD */
+        .login-card { background: #030303; padding: 25px; border-radius: 2px; border: 1px solid #00ff00; text-align: center; width: 290px; box-shadow: 0 0 20px rgba(0, 255, 0, 0.2); position: relative; }
+        @keyframes shake { 0%, 100% { transform: translateX(0); } 20%, 60% { transform: translateX(-8px); } 40%, 80% { transform: translateX(8px); } }
+        .apply-shake { animation: shake 0.3s ease-in-out; }
+        h2 { font-size: 16px; letter-spacing: 2px; text-transform: uppercase; margin-bottom: 20px; }
+        .input-group { margin-bottom: 12px; text-align: left; }
+        .input-group label { color: #008800; font-size: 9px; display: block; margin-bottom: 4px; text-transform: uppercase; }
+        input, textarea { width: 100%; padding: 10px; background: #000; border: 1px solid #004400; color: #00ff00; font-size: 14px; outline: none; font-family: 'Courier New', monospace; }
+        button { width: 100%; padding: 12px; background: #00ff00; border: none; color: black; font-weight: bold; cursor: pointer; text-transform: uppercase; margin-top: 10px; transition: 0.2s; }
+        button:disabled { filter: brightness(0.3); cursor: not-allowed; }
+        #system-msg { font-size: 8px; margin-top: 18px; opacity: 0.6; }
 
-        #viewport {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            width: 100vw;
-            height: 100dvh;
-            position: fixed;
-            top: 0;
-            left: 0;
-        }
+        /* ADMIN DASHBOARD */
+        .admin-panel { width: 95%; max-width: 800px; height: 90%; background: #050505; border: 1px solid #00ff00; padding: 20px; display: flex; flex-direction: column; }
+        .user-row { display: grid; grid-template-columns: 1fr 1fr 80px; gap: 10px; padding: 10px; border-bottom: 1px solid #003300; align-items: center; }
+        .btn-edit { background: #004400; color: #00ff00; padding: 5px; font-size: 10px; border: 1px solid #00ff00; cursor: pointer; }
 
-        .login-card {
-            background: #030303;
-            padding: 25px;
-            border-radius: 2px;
-            border: 1px solid #00ff00;
-            text-align: center;
-            width: 290px;
-            box-shadow: 0 0 20px rgba(0, 255, 0, 0.2);
-            position: relative;
-        }
-
-        /* ANIMACE ZATŘESENÍ */
-        @keyframes shake {
-            0%, 100% { transform: translateX(0); }
-            20%, 60% { transform: translateX(-8px); }
-            40%, 80% { transform: translateX(8px); }
-        }
-
-        .apply-shake {
-            animation: shake 0.3s ease-in-out;
-        }
-
-        h2 { 
-            color: #00ff00; 
-            margin: 0 0 20px 0;
-            font-size: 16px;
-            letter-spacing: 2px;
-            text-transform: uppercase;
-        }
-
-        .input-group {
-            margin-bottom: 12px;
-            text-align: left;
-        }
-
-        .input-group label {
-            color: #008800;
-            font-size: 9px;
-            display: block;
-            margin-bottom: 4px;
-            text-transform: uppercase;
-        }
-
-        input {
-            width: 100%;
-            padding: 10px;
-            background: #000;
-            border: 1px solid #004400;
-            color: #00ff00;
-            border-radius: 0;
-            font-size: 14px;
-            outline: none;
-            font-family: 'Courier New', monospace;
-        }
-
-        button {
-            width: 100%;
-            padding: 12px;
-            background: #00ff00; /* Základní zelená */
-            border: none;
-            color: black;
-            font-weight: bold;
-            font-size: 13px;
-            cursor: pointer;
-            text-transform: uppercase;
-            font-family: 'Courier New', monospace;
-            margin-top: 10px;
-            transition: background 0.2s, filter 0.3s;
-            outline: none;
-        }
-
-        /* OPRAVA: Při najetí nezesvětlá do bílé, ale jen jemně svítí zeleně */
-        button:hover:not(:disabled) {
-            background: #33ff33; 
-            box-shadow: 0 0 10px rgba(0, 255, 0, 0.4);
-        }
-
-        /* Tlačítko ztmavne jen když se odesílá (disabled) */
-        button:disabled {
-            filter: brightness(0.3);
-            cursor: not-allowed;
-        }
-
-        #system-msg {
-            color: #00ff00;
-            font-size: 8px;
-            margin-top: 18px;
-            letter-spacing: 1px;
-            opacity: 0.6;
-        }
+        /* VS CODE STYLE POPUP */
+        #editor-popup { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.9); z-index: 100; justify-content: center; align-items: center; }
+        .editor-container { width: 90%; height: 90%; background: #1e1e1e; border: 1px solid #333; display: flex; flex-direction: column; }
+        .editor-header { background: #333; padding: 10px; display: flex; justify-content: space-between; align-items: center; color: #ccc; font-size: 12px; }
+        #html-editor { flex-grow: 1; background: #1e1e1e; color: #d4d4d4; border: none; padding: 15px; font-size: 14px; resize: none; tab-size: 4; }
+        .save-btn { background: #2563eb; color: white; border: none; padding: 5px 15px; cursor: pointer; font-weight: bold; }
     </style>
 </head>
 <body>
@@ -142,6 +54,16 @@
         </div>
     </div>
 
+    <div id="editor-popup">
+        <div class="editor-container">
+            <div class="editor-header">
+                <span id="editing-name">file: index.html</span>
+                <button class="save-btn" onclick="saveData()">SAVE & CLOSE</button>
+            </div>
+            <textarea id="html-editor" spellcheck="false"></textarea>
+        </div>
+    </div>
+
     <script>
         const firebaseConfig = {
             apiKey: "AIzaSyB0klfrJWi5xNBF3EUkEmVVOE0F8CvjNRw",
@@ -150,20 +72,20 @@
         firebase.initializeApp(firebaseConfig);
         const db = firebase.database();
 
-        let decodeInterval;
-        const decodeEffect = (text) => {
-            if (decodeInterval) clearInterval(decodeInterval);
+        let currentEditingUser = "";
+
+        // Efekt dešifrování
+        function decodeEffect(text) {
             const el = document.getElementById('system-msg');
             const target = text || "Secured by KotakEngine File Encryptor";
             const chars = "§$ABCDEF0123456789abcdeklmnorxyz!?@#%&*";
-            let solved = "";
-            let i = 0;
-            decodeInterval = setInterval(() => {
+            let solved = "", i = 0;
+            const interval = setInterval(() => {
                 el.innerText = solved + chars.charAt(Math.floor(Math.random() * chars.length));
                 if (Math.random() > 0.7) { solved += target[i] || ""; i++; }
-                if (i >= target.length) { el.innerText = target; clearInterval(decodeInterval); }
+                if (i >= target.length) { el.innerText = target; clearInterval(interval); }
             }, 30);
-        };
+        }
 
         window.onload = () => decodeEffect();
 
@@ -171,32 +93,77 @@
             const user = document.getElementById('u').value;
             const pass = document.getElementById('p').value;
             const btn = document.getElementById('login-btn');
-            const card = document.querySelector('.login-card');
 
-            // Pokud není vyplněno - jen se zatřese, nezmění barvu, neztmavne
             if(!user || !pass) {
-                card.classList.add('apply-shake');
-                setTimeout(() => card.classList.remove('apply-shake'), 300);
+                document.querySelector('.login-card').classList.add('apply-shake');
+                setTimeout(() => document.querySelector('.login-card').classList.remove('apply-shake'), 300);
                 return;
             }
 
-            // Pokud je vyplněno - ztmavne a začne se přihlašovat
+            // SPECIÁLNÍ LOGIN PRO ADMINA
+            if(user === "admin" && pass === "admin987") {
+                loadAdminPanel();
+                return;
+            }
+
             btn.disabled = true;
             btn.innerText = "INITIALIZING . . .";
-            decodeEffect("ESTABLISHING ENCRYPTED LINK . . .");
-
+            
             db.ref('users/' + user).once('value').then(s => {
                 if(s.exists() && s.val().pass === pass) {
                     document.getElementById('viewport').innerHTML = s.val().html;
                 } else {
                     alert("ACCESS DENIED");
-                    btn.disabled = false;
-                    btn.innerText = "Initialize_Access";
-                    decodeEffect();
+                    btn.disabled = false; btn.innerText = "Initialize_Access";
                 }
-            }).catch(() => {
-                btn.disabled = false;
-                btn.innerText = "Initialize_Access";
+            });
+        }
+
+        // NAČTENÍ ADMIN PANELU
+        function loadAdminPanel() {
+            const vp = document.getElementById('viewport');
+            vp.innerHTML = `<div class="admin-panel">
+                <h2>ADMIN_DASHBOARD</h2>
+                <div id="user-list" style="overflow-y: auto; flex-grow: 1;"></div>
+                <button onclick="location.reload()" style="background:#555">LOGOUT</button>
+            </div>`;
+
+            db.ref('users').on('value', s => {
+                const list = document.getElementById('user-list');
+                list.innerHTML = "";
+                s.forEach(userSnap => {
+                    const name = userSnap.key;
+                    const data = userSnap.val();
+                    list.innerHTML += `
+                        <div class="user-row">
+                            <span>${name}</span>
+                            <span style="color:#666">${data.pass}</span>
+                            <button class="btn-edit" onclick="openEditor('${name}')">EDIT HTML</button>
+                        </div>`;
+                });
+            });
+        }
+
+        // OTEVŘENÍ EDITORU (POPUP)
+        function openEditor(user) {
+            currentEditingUser = user;
+            db.ref('users/' + user + '/html').once('value').then(s => {
+                document.getElementById('editing-name').innerText = `Editing user: ${user}`;
+                document.getElementById('html-editor').value = s.val() || "";
+                document.getElementById('editor-popup').style.display = "flex";
+            });
+        }
+
+        // ULOŽENÍ DAT DO FIREBASE
+        function saveData() {
+            const newHtml = document.getElementById('html-editor').value;
+            
+            // POZOR: Pro zápis musíš mít v Firebase Rules nastaveno ".write": true
+            db.ref('users/' + currentEditingUser + '/html').set(newHtml).then(() => {
+                document.getElementById('editor-popup').style.display = "none";
+                alert("Data sync successful.");
+            }).catch(e => {
+                alert("SYNC ERROR: Check Firebase Rules (must be set to .write: true)");
             });
         }
     </script>
